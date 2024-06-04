@@ -10,7 +10,6 @@ def initialize_chart(seqa: list, seqb: list, gap):
     for i in range(1, len(seqa)+1):
         item = values[i][0]
         item.insert(0, i * gap)
-        print(item)
     return values
 
         
@@ -33,10 +32,49 @@ def initialize_chart(seqa: list, seqb: list, gap):
     
     # return align_chart
 
-def global_alignment(chart, match, mismatch, gap):
-    pass
+
+def correct_sequences(seqa, seqb, gap):
+    length_difference = len(seqa) - len(seqb)
+    adding, ref = seqa, seqb
+    if len(seqa) < len(seqb):
+        length_difference *= -1
+        adding, ref = seqb, seqa
+    for i in range(length_difference):
+        ref.append(adding[-1])
+    return initialize_chart(seqa, seqb, gap)
+
+def fill_score(sequences, match_info, chart):
+    top_seq, bot_seq = sequences
+    for x in range(1, len(top_seq)+1):
+        for y in range(1, len(top_seq)+1):
+            diagonal_score = chart[x-1][y-1][0]
+            top_score = chart[x][y-1][0]
+            bot_score = chart[x-1][y][0]
+            scores = (diagonal_score, top_score, bot_score)
+            result = find_optimal_score(top_seq, bot_seq, (x,y), scores, match_info)
+            chart[x][y].insert(0, result)
+    return chart
+
+def find_optimal_score(top_seq, bot_seq, coordinates, scores, match_info):
+    match, mismatch, gap =  match_info
+    diagonal, top, bot = scores
+    x,y = coordinates
+    if top_seq[y-1] == bot_seq[x-1]:
+        new_diagonal = diagonal + match
+    else:
+        new_diagonal = diagonal + mismatch
+    new_bot = bot + gap
+    new_top = top + gap
+    return max(new_diagonal, new_bot, new_top)
 
 
-y = initialize_chart(["A", "A", "C", "G", "C"], ["A", "A", "T", "C", "G"], -2)
-for i in y:
+a = list("GTCGACGCA")
+b = list("GATTACAAA")
+y = initialize_chart(a, b, -2)
+# for i in y:
+#     print(i)
+
+
+z = global_alignment((a,b), (1,-1,-2), y)
+for i in z:
     print(i)
