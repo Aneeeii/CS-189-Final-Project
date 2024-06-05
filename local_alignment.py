@@ -71,12 +71,6 @@ class ZeroMatrixUnit:
 
 
 def create_matrix(seqa: list, seqb: list, match):
-    #   s e q b
-    # s
-    # e
-    # q
-    # a
-
     align_chart = []
 
     # creates a blank matrix
@@ -112,6 +106,8 @@ def fill_chart(chart, gap, mismatch, match, start_pos, seqa, seqb):
     across_fill = start_pos[1]
 
     for i in range(down_fill, len(seqa)):
+        # if down_fill < across_fill:
+        #     break
         previous = chart[i - 1][across_fill - 1]
         previous_value = previous.value()
         left = chart[i][across_fill - 1]
@@ -170,6 +166,8 @@ def fill_across(chart, gap, mismatch, match, start_pos, seqa, seqb):
     down_fill = start_pos[0]
     across_fill = start_pos[1]
     for i in range(across_fill + 1, len(seqb)):
+        # if across_fill < down_fill:
+        #     break
         previous = chart[down_fill - 1][i - 1]
         previous_value = previous.value()
         left = chart[down_fill][i - 1]
@@ -221,16 +219,21 @@ def fill_across(chart, gap, mismatch, match, start_pos, seqa, seqb):
     return chart, (x, y)
 
 
+def keep_repeat(chart, seqa, seqb):
+    if len(chart) < len(seqa):
+        return False
+    for i in chart:
+        if len(i) < len(seqb):
+            return False
+    return True
+
+
 def repeat(initial_pos, chart, seqa, seqb, match, mismatch, gap):
-    end_pos = (len(seqa) - 1, len(seqb) - 1)
     current_pos = initial_pos
-    while end_pos != current_pos:
+    while not keep_repeat(chart, seqa, seqb):
         chart, new_pos = fill_chart(chart, gap, mismatch, match, current_pos, seqa, seqb)
         chart, current_pos = fill_across(chart, gap, mismatch, match, current_pos, seqa, seqb)
         current_pos = new_pos
-    #     print(current_pos)
-    # for i in chart:
-    #     print(i)
     
     return chart
 
@@ -239,7 +242,18 @@ def get_max_location(chart, seqa, seqb):
     local_maxes = []
     for i in chart:
         local_maxes.append(max(i))
-    total_max = max(local_maxes)
+    
+    highest = None
+    total_max = []
+    for j in local_maxes:
+        if highest is None:
+            highest = j
+            total_max.append(j)
+        if highest < j:
+            highest = j
+            total_max = [j]
+        elif highest == j:
+            total_max.append(j)
     return total_max
 
 
@@ -261,13 +275,20 @@ def trace_path(chart, unit):
 def main():
     seqa = ["A", "C", "G", "C"]
     seqb = ["G", "A", "T", "T", "G", "A"]
+    paths = []
     a = create_matrix(seqa, seqb, 2)
 
     b = repeat((1, 1), a, seqa, seqb, 2, -1, -2)
-    print(b)
+    # print(b)
     c = get_max_location(b, seqa, seqb)
-    d = list(trace_path(b, c)) + [c]
-    print(d)
+    for i in c:
+        # print(i, i.position())
+        d = list(trace_path(b, i)) + [i]
+        while None in d:
+            d.remove(None)
+        paths.append(d)
+    
+    print(paths)
 
 
 if __name__ == "__main__":
