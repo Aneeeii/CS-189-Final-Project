@@ -1,73 +1,6 @@
 from types import UnionType
 from typing import Any
-
-
-class MatrixUnit:
-    def __init__(self, value, position):
-        self._value = value
-        self._position = position
-        self._lead_to = []
-    
-    def value(self):
-        return self._value
-    
-    def position(self):
-        return self._position
-    
-    def lead_to(self):
-        return self._lead_to
-    
-    def add_leading(self, position):
-        self._lead_to.append(position)
-
-    def __lt__(self, other):
-        if type(other) is MatrixUnit or type(other) is ZeroMatrixUnit:
-            return self.value() < other.value()
-        else:
-            return NotImplemented
-    
-    def __eq__(self, other: object) -> bool:
-        if type(other) is MatrixUnit or type(other) is ZeroMatrixUnit:
-            return self.value() == other.value()
-        else:
-            return NotImplemented
-    
-    def __le__(self, other):
-        if type(other) is MatrixUnit or type(other) is ZeroMatrixUnit:
-            return self.value() <= other.value()
-        else:
-            return NotImplemented
-
-
-
-class ZeroMatrixUnit:
-    def __init__(self, position):
-        self._value = 0
-        self._position = position
-    
-    def value(self):
-        return self._value
-
-    def position(self):
-        return self._position
-
-    def __lt__(self, other):
-        if type(other) is MatrixUnit or type(other) is ZeroMatrixUnit:
-            return self.value() < other.value()
-        else:
-            return NotImplemented
-    
-    def __eq__(self, other: object) -> bool:
-        if type(other) is MatrixUnit or type(other) is ZeroMatrixUnit:
-            return self.value() == other.value()
-        else:
-            return NotImplemented
-    
-    def __le__(self, other):
-        if type(other) is MatrixUnit or type(other) is ZeroMatrixUnit:
-            return self.value() <= other.value()
-        else:
-            return NotImplemented
+import units
 
 
 def create_matrix(seqa: list, seqb: list, match):
@@ -82,9 +15,9 @@ def create_matrix(seqa: list, seqb: list, match):
     for j in range(len(seqa)):
         if seqa[j] == seqb[count]:
             # row x column
-            unit = MatrixUnit(match, (j, count))
+            unit = units.MatrixUnit(match, (j, count))
         else:
-            unit = ZeroMatrixUnit((j, count))
+            unit = units.ZeroMatrixUnit((j, count))
         align_chart[j].append(unit)
     
     # initializes first row
@@ -92,9 +25,9 @@ def create_matrix(seqa: list, seqb: list, match):
         if k == 0:
             continue
         elif seqb[k] == seqa[0]:
-            unit = MatrixUnit(match, (0, k))
+            unit = units.MatrixUnit(match, (0, k))
         else:
-            unit = ZeroMatrixUnit((0, k))
+            unit = units.ZeroMatrixUnit((0, k))
         align_chart[0].append(unit)
 
     return align_chart
@@ -139,11 +72,11 @@ def fill_chart(chart, gap, mismatch, match, start_pos, seqa, seqb):
                 leads = [left.position()]
             
         if value <= 0:
-            unit = ZeroMatrixUnit((i, across_fill))
+            unit = units.ZeroMatrixUnit((i, across_fill))
         else:
-            unit = MatrixUnit(value, (i, across_fill))
+            unit = units.MatrixUnit(value, (i, across_fill))
             for k in leads:
-                if type(k) is ZeroMatrixUnit:
+                if type(k) is units.ZeroMatrixUnit:
                     continue
                 else:
                     unit.add_leading(k)
@@ -199,9 +132,9 @@ def fill_across(chart, gap, mismatch, match, start_pos, seqa, seqb):
                 leads = [left.position()]
             
         if value <= 0:
-            unit = ZeroMatrixUnit((down_fill, i))
+            unit = units.ZeroMatrixUnit((down_fill, i))
         else:
-            unit = MatrixUnit(value, (down_fill, i))
+            unit = units.MatrixUnit(value, (down_fill, i))
             for k in leads:
                 unit.add_leading(k)
         
@@ -272,24 +205,26 @@ def trace_path(chart, unit):
         yield new_unit
 
 
-def main():
-    seqa = ["A", "C", "G", "C"]
-    seqb = ["G", "A", "T", "T", "G", "A"]
+def find_alignments(seqa, seqb, match, mismatch, gap):
     paths = []
-    a = create_matrix(seqa, seqb, 2)
-
-    b = repeat((1, 1), a, seqa, seqb, 2, -1, -2)
-    # print(b)
-    c = get_max_location(b, seqa, seqb)
-    for i in c:
-        # print(i, i.position())
-        d = list(trace_path(b, i)) + [i]
-        while None in d:
-            d.remove(None)
-        paths.append(d)
+    init_chart = create_matrix(seqa, seqb, match)
+    chart = repeat((1, 1), init_chart, seqa, seqb, match, mismatch, gap)
+    maxes = get_max_location(chart, seqa, seqb)
+    for i in maxes:
+        pathway = list(trace_path(chart, i)) + [i]
+        while None in pathway:
+            pathway.remove(None)
+        paths.append(pathway)
     
-    print(paths)
+    return chart, paths
 
 
-if __name__ == "__main__":
-    main()
+def stringify(chart, paths):
+    for p in paths:
+        pass
+
+
+
+seqa = ["A", "C", "G", "C"]
+seqb = ["G", "A", "T", "T", "G", "A"]
+chart, paths = find_alignments(seqa, seqb, 2, -1, -2)
