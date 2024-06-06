@@ -17,8 +17,8 @@ class Body:
     def create_bar(self):
         self.menu = tk.Menu(self._root)
         file_menu = tk.Menu(self.menu, tearoff=0)
-        file_menu.add_command(label="Global Alignment", command=self.aligning)
-        file_menu.add_command(label="Local Alignment", command=self.aligning)
+        file_menu.add_command(label="Global Alignment", command=self.global_check)
+        file_menu.add_command(label="Local Alignment", command=self.local_check)
 
         self.menu.add_cascade(label="Alignment Options", menu=file_menu)
         
@@ -38,6 +38,9 @@ class Body:
         self.text.insert(tk.END, line1)
         self.text.insert(tk.END, line2)
         self.text.insert(tk.END, line3)
+        self.text.tag_configure("center", justify='center')
+        indent = "\n" * 29
+        self.text.insert(tk.END, indent + "By Annie Yin and Ryan Kwok", "center")
 
     def clear_text(self):
         self.text.delete("1.0", tk.END)
@@ -60,10 +63,11 @@ class Body:
     
     def global_check(self):
         self.algorithm = "global"
-        self.aligning("Global Alignment")
+        self.aligning()
     
     def local_check(self):
         self.algorithm = "local"
+        self.aligning()
 
     
     def data_collection(self, name):
@@ -214,33 +218,5 @@ def main():
     root = body.return_root()
     root.mainloop()
     
-
-    # Create a frame to act as the box
-    
-    
-    # view_instructions(frame)
-    # create_bar(root, frame)
-
-    # Run the application
-# main()
-
-# def main():
-#     root = tk.Tk()
-#     root.title("Table with Numbers")
-    
-#     # Define your table data (example)
-#     table_data = [
-#         [1, 2, 3],
-#         [4, 5, 6],
-#         [7, 8, 9]
-#     ]
-    
-#     # Create labels in a grid to represent the table
-#     for i, row in enumerate(table_data):
-#         for j, value in enumerate(row):
-#             label = tk.Label(root, text=value, width=5, height=2, relief=tk.RIDGE)
-#             label.grid(row=i, column=j, padx=5, pady=5)
-    
-#     root.mainloop()
-
-main()
+if __name__ == '__main__':
+    main()
