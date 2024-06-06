@@ -130,14 +130,21 @@ def find_alignment(chart, sequences):
         if last_row < 0 and last_column < 0:
             break
 
-    print(list(reversed(top_aligned)), "\n",list(reversed(bot_aligned)))
+    return list(reversed(top_aligned)),list(reversed(bot_aligned))
 
-def main():
-    a = list("GACA")
-    b = list("ACA")
+def run(seqa, seqb, match_info):
+    a = seqa
+    b = seqb
     c = a[:]
     d = b[:]
-    match_info = (1,-1,-2)
+    scores = []
+    final = []
     chart = fill_score((a,b), match_info)
-    find_alignment(chart, (c,d))
-main()
+    result = find_alignment(chart, (c,d))
+    for i in chart:
+        for x in i:
+            scores.append(x[0])
+        final.append(scores)
+        scores = []
+    return result, final
+
