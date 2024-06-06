@@ -307,9 +307,9 @@ def total(seqa: str, seqb: str):
         k = [0] + k
         final_chart.append(k)
 
-    print(aseqa)
-    print(aseqb)
-    print(final_chart)
+    # print(aseqa)
+    # print(aseqb)
+    # print(final_chart)
     return (aseqa, aseqb), final_chart
 
 
