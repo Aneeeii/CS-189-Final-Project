@@ -272,6 +272,19 @@ def fill_in_blank(paths_aligned, seqa, seqb):
     return aseqa, aseqb
 
 
+def rechart(chart):
+    rows = len(chart)
+    copy = []
+    for i in range(0, rows):
+        copy.append([])
+    for row in chart:
+        for i in row:
+            ind = chart.index(row)
+            copy[ind].append(i.value())
+    
+    return copy
+
+
 def total(seqa: str, seqb: str):
     # set seqa as the shorter one
     seqa = list(seqa.strip())
@@ -279,11 +292,13 @@ def total(seqa: str, seqb: str):
     if len(seqa) > len(seqb):
         seqa, seqb = seqb, seqa
     chart, paths = find_alignments(seqa, seqb, 2, -1, -2)
+    chart = rechart(chart)
     paths_aligned = stringify(paths, seqa, seqb)
     for i in paths_aligned:
         aseqa, aseqb = fill_in_blank(i, seqa, seqb)
     print(aseqa)
     print(aseqb)
+    print(chart)
     return ''.join(aseqa), ''.join(aseqb), chart
 
 
