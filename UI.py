@@ -153,12 +153,6 @@ class Body:
             else:
                 self.scores[i].insert(0, self.bot_sequence[i-2])
 
-
-
-
-
-
-
 class Sequences(tk.simpledialog.Dialog):
 
     def __init__(self, root, title=None):
