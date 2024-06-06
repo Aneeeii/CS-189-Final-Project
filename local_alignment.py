@@ -214,16 +214,8 @@ def find_alignments(seqa, seqb, match, mismatch, gap):
     init_chart = create_matrix(seqa, seqb, match)
     chart = repeat((1, 1), init_chart, seqa, seqb, match, mismatch, gap)
     maxes = get_max_location(chart, seqa, seqb)
-    print(maxes[0].position(), maxes[0].value())
     for i in maxes:
         pathway = trace_path(chart, i, [])
-        # pathway = list(trace_path(chart, i)) + [i]
-        # print("pathway:", pathway)
-        # print(pathway)
-        # for j in pathway:
-        #     print(j.value(), j.position())
-        # while None in pathway:
-        #     pathway.remove(None)
         paths.append(pathway[::-1])
     
     return chart, paths
@@ -254,26 +246,53 @@ def stringify(paths, seqa, seqb):
                 else:
                     align_a.append(seqa[i[0]])
                     align_b.append(seqb[i[1]])
-        paths_aligned.append((align_a, align_b))
+        paths_aligned.append((align_a, align_b, indices[0]))
     
     return paths_aligned
 
 
-def total():
-    seqa = ["A", "A", "T", "G"]
-    seqb = ["G", "A", "T", "T", "G", "A"]
+def fill_in_blank(paths_aligned, seqa, seqb):
+    seqa_aligned = paths_aligned[0]
+    seqb_aligned = paths_aligned[1]
+    start_pos = paths_aligned[2]
+
+    seqa_sandwich_start = start_pos[0]
+    seqa_sandwich_end = start_pos[0] + len(seqa_aligned)
+    seqb_sandwich_start = start_pos[1]
+    seqb_sandwich_end = start_pos[1] + len(seqb_aligned)
+
+    aseqb = seqb[0:seqb_sandwich_start] + seqb_aligned + seqb[seqb_sandwich_end:]
+    
+    aseqa_start = ["-" for i in range(0, seqb_sandwich_start - len(seqa[0:seqa_sandwich_start]))] + seqa[0:seqa_sandwich_start]
+
+    aseqa_end = seqa[seqa_sandwich_end:] + ["-" for i in range(seqa_sandwich_end + len(seqa[seqa_sandwich_end:]), len(seqb) - 1)]
+    aseqa = aseqa_start + seqa_aligned + aseqa_end
+
+    
+    return aseqa, aseqb
+
+
+def total(seqa: str, seqb: str):
+    # set seqa as the shorter one
+    seqa = list(seqa.strip())
+    seqb = list(seqb.strip())
+    if len(seqa) > len(seqb):
+        seqa, seqb = seqb, seqa
     chart, paths = find_alignments(seqa, seqb, 2, -1, -2)
     paths_aligned = stringify(paths, seqa, seqb)
-    # print(paths)
-    # for j in paths[0]:
-    #     print(j.position(), j.value())
-    print(paths_aligned)
-    # for i in paths_aligned:
-    #     print(i[0])
-    #     print(i[1])
-    # print(chart)
+    for i in paths_aligned:
+        aseqa, aseqb = fill_in_blank(i, seqa, seqb)
+    print(aseqa)
+    print(aseqb)
+    return ''.join(aseqa), ''.join(aseqb), chart
 
 
 # set it so seqa is the shorter string
 
-total()
+seqa = "GATTGA"
+seqb = "AATG"
+total(seqa, seqb)
+
+# working sequences
+# GATTGA, AATG
+# 
