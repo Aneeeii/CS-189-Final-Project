@@ -9,6 +9,7 @@ class Body:
         self.top_sequence, self.bot_sequence = None, None
         self.match, self.mismatch, self.gap = None, None, None
         self.label, self.score_frame = [], None
+        self.scores = None
         self.to_destroy = []
         self.create()
 
@@ -42,13 +43,13 @@ class Body:
 
     def create(self):
         self._root = tk.Tk()
-        self._root.geometry("700x600")
+        self._root.geometry("1000x800")
         self.frame = tk.Frame(self._root, bd=2, relief=None, padx=10, pady=10)
         title_label = tk.Label(self.frame, text="Welcome to the Alignment Tool!", 
                                font=("Courier New", 16))
         title_label.pack()
         self.frame.place(relx=0.5, rely=0.5, anchor="center")
-        self.text = tk.Text(self.frame, width=70, height=28, font=("Arial", 12))
+        self.text = tk.Text(self.frame, width=100, height=35, font=("Arial", 12))
         self.view_instructions()
         self.text.pack(expand=True, fill="both")
         self.create_bar()
@@ -57,6 +58,7 @@ class Body:
         return self._root
     
     def data_collection(self, name):
+        self.delete_frame()
         self.clear_text()
         collect = Sequences(self._root, name)
         condition = False
@@ -70,6 +72,7 @@ class Body:
             message = "Please fill in both sequences"
             messagebox.showerror("Error", message)
             self.view_instructions()
+            return None
         if condition:
             matching = Match_Info(self._root, "Matching Information")
             self.match = matching.match_score
@@ -82,6 +85,7 @@ class Body:
             except (ValueError, TypeError):
                 message = "Please fill in all scores with integers."
                 messagebox.showerror("error", message)
+        return True
     
     def delete_frame(self):
         for i in self.to_destroy:
@@ -91,17 +95,20 @@ class Body:
     
     def global_aligning(self):
         self.delete_frame()
-        self.data_collection("Global Alignment")
-        final, scores = GA.run(self.top_sequence, self.bot_sequence,
+        check = self.data_collection("Global Alignment")
+        if not check:
+            return None
+        final, self.scores = GA.run(self.top_sequence, self.bot_sequence,
                        (self.match, self.mismatch, self.gap))
+        self.chart_update()
         self.score_frame = tk.Frame(self._root, bd=2, relief=tk.GROOVE)
         self.score_frame.pack(padx=10, pady=10)
         self.score_frame.place(relx=0.5, rely=0.5, anchor="center")
         self.to_destroy.append(self.score_frame)
-        for index, row in enumerate(scores):
+        for index, row in enumerate(self.scores):
             label_row = []
             for index2, num in enumerate(row):
-                label = tk.Label(self.score_frame, text=num, width=7, height=4, 
+                label = tk.Label(self.score_frame, text=num, width=5, height=4, 
                                  anchor = "center",relief=tk.RIDGE)
                 label.grid(row=index, column=index2, padx=10, pady=10)
                 label_row.append(label)
@@ -109,9 +116,28 @@ class Body:
         top, bottom = final
         top = " ".join(top)
         bottom = " ".join(bottom)
-        self.result_label = tk.Label(self.frame, text=top + "\n" + bottom)
+        self.result_label = tk.Label(self.frame, text="FINAL ALIGNMENT" + "\n" + top + "\n" + bottom, 
+                                     font=("Courier New", 15))
         self.result_label.pack(side=tk.BOTTOM, anchor="center", pady = (0,10))
         self.to_destroy.append(self.result_label)
+    
+    def chart_update(self):
+        top = len(self.scores[0]) - len(self.top_sequence)
+        for i in range(top):
+            self.top_sequence.insert(0, "")
+        self.scores.insert(0, self.top_sequence)
+        # bot = len(self.scores) - len(self.bot_sequence)
+        # for i in range(bot):
+        #     self.bot_sequence.insert(0, "")
+        bot = len(self.scores)
+        for i in range(bot):
+            if i == 0 or i == 1:
+                self.scores[i].insert(0, "")
+            else:
+                self.scores[i].insert(0, self.bot_sequence[i-2])
+
+
+
 
 
 
