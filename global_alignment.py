@@ -95,6 +95,7 @@ def find_right_path(travel_values, diagonal, top, left, current):
     dv = diagonal[0]
     tv = top[0]
     lv = left[0]
+    a = 1 #delete later
     values = [dv, tv, lv]
     print("hi")
     print(values)
