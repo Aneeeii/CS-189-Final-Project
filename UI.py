@@ -12,6 +12,7 @@ class Body:
         self.label, self.score_frame = [], None
         self.scores, self.algorithm = None, None
         self.to_destroy = []
+        self.z = None #delete later
         self.create()
 
     def create_bar(self):
@@ -152,12 +153,6 @@ class Body:
                 self.scores[i].insert(0, "")
             else:
                 self.scores[i].insert(0, self.bot_sequence[i-2])
-
-
-
-
-
-
 
 class Sequences(tk.simpledialog.Dialog):
 
