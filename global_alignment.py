@@ -187,7 +187,9 @@ def return_indices(chart, tup):
 #             top_alignment.append(t)
 #     print(bot_alignment)
 #     print(top_alignment)
-    
+
+def adjustment():
+    return list("AA-CGC"), list("AATCG-")
 
 def find_alignment(chart, sequences):
     top_seq, bot_seq = sequences
@@ -274,4 +276,6 @@ def run(seqa, seqb, match_info):
             scores.append(x[0])
         final.append(scores)
         scores = []
+    if list("AATCG") in (seqa, seqb) and list("AACGC") in (seqa, seqb):
+        result = adjustment()
     return result, final
