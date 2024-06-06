@@ -111,32 +111,33 @@ def fill_across(chart, gap, mismatch, match, start_pos, seqa, seqb):
         value = 0
         if seqb[i] == seqa[down_fill]:  # match
             value = previous_value + match
-            leads.append(previous.position())
+            leads.append(previous)
         if value <= previous_value + mismatch: # mismatch
             if value == previous_value + mismatch and previous.position() not in leads:
-                leads.append(previous.position())
+                leads.append(previous)
             else:
                 value = previous_value + mismatch
-                leads = [previous.position()]
+                leads = [previous]
         if value <= up_value + gap:  # gap from top
             if value == up_value + gap and up.position() not in leads:
-                leads.append(up.position())
+                leads.append(up)
             else:
                 value = up_value + gap
-                leads = [up.position()]
+                leads = [up]
         if value <= left_value + gap:  # gap from side
             if value == left_value + gap and left.position() not in leads:
-                leads.append(left.position())
+                leads.append(left)
             else:
                 value = left_value + gap
-                leads = [left.position()]
+                leads = [left]
             
         if value <= 0:
             unit = units.ZeroMatrixUnit((down_fill, i))
         else:
             unit = units.MatrixUnit(value, (down_fill, i))
             for k in leads:
-                unit.add_leading(k)
+                if type(k) is not units.ZeroMatrixUnit:
+                    unit.add_leading(k.position())
         
         chart[down_fill].append(unit)
     
@@ -285,13 +286,13 @@ def rechart(chart):
     return copy
 
 
-def total(seqa: str, seqb: str):
+def total(seqa: str, seqb: str, match, mismatch, gap):
     # set seqa as the shorter one
     seqa = list(seqa.strip())
     seqb = list(seqb.strip())
     if len(seqa) > len(seqb):
         seqa, seqb = seqb, seqa
-    chart, paths = find_alignments(seqa, seqb, 2, -1, -2)
+    chart, paths = find_alignments(seqa, seqb, match, mismatch, gap)
     chart = rechart(chart)
     paths_aligned = stringify(paths, seqa, seqb)
     for i in paths_aligned:
