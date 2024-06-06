@@ -190,19 +190,23 @@ def get_max_location(chart, seqa, seqb):
     return total_max
 
 
-def trace_path(chart, unit):
+def trace_path(chart, unit, path: list):
     start_pos = unit.position()
     leads = unit.lead_to()
 
+    path.append(unit)
+
     if len(leads) > 1:
         for i in leads:
-            yield from trace_path(chart, chart[i[0]][i[1]])
-    elif not leads:
-        yield
-    else:
+            new = trace_path(chart, chart[i[0]][i[1]], path)
+            new += path
+            path = new
+    elif len(leads) == 1:
         lead = leads[0]
         new_unit = chart[lead[0]][lead[1]]
-        yield new_unit
+        path = trace_path(chart, new_unit, path)
+    
+    return path
 
 
 def find_alignments(seqa, seqb, match, mismatch, gap):
@@ -210,21 +214,66 @@ def find_alignments(seqa, seqb, match, mismatch, gap):
     init_chart = create_matrix(seqa, seqb, match)
     chart = repeat((1, 1), init_chart, seqa, seqb, match, mismatch, gap)
     maxes = get_max_location(chart, seqa, seqb)
+    print(maxes[0].position(), maxes[0].value())
     for i in maxes:
-        pathway = list(trace_path(chart, i)) + [i]
-        while None in pathway:
-            pathway.remove(None)
-        paths.append(pathway)
+        pathway = trace_path(chart, i, [])
+        # pathway = list(trace_path(chart, i)) + [i]
+        # print("pathway:", pathway)
+        # print(pathway)
+        # for j in pathway:
+        #     print(j.value(), j.position())
+        # while None in pathway:
+        #     pathway.remove(None)
+        paths.append(pathway[::-1])
     
     return chart, paths
 
 
-def stringify(chart, paths):
+def stringify(paths, seqa, seqb):
+    paths_aligned = []
     for p in paths:
-        pass
+        indices = []
+        for unit in p:
+            position = unit.position()
+            indices.append(position)
+        align_a = []
+        align_b = []
+        for i in indices:
+            if indices.index(i) == 0:
+                align_a.append(seqa[i[0]])
+                align_b.append(seqb[i[1]])
+            else:
+                ind = indices.index(i) - 1
+                previous = indices[ind]
+                if previous[0] == i[0]:
+                    align_a.append("-")
+                    align_b.append(seqb[i[1]])
+                elif previous[1] == i[1]:
+                    align_a.append(seqa[i[0]])
+                    align_b.append("-")
+                else:
+                    align_a.append(seqa[i[0]])
+                    align_b.append(seqb[i[1]])
+        paths_aligned.append((align_a, align_b))
+    
+    return paths_aligned
 
 
+def total():
+    seqa = ["A", "A", "T", "G"]
+    seqb = ["G", "A", "T", "T", "G", "A"]
+    chart, paths = find_alignments(seqa, seqb, 2, -1, -2)
+    paths_aligned = stringify(paths, seqa, seqb)
+    # print(paths)
+    # for j in paths[0]:
+    #     print(j.position(), j.value())
+    print(paths_aligned)
+    # for i in paths_aligned:
+    #     print(i[0])
+    #     print(i[1])
+    # print(chart)
 
-seqa = ["A", "C", "G", "C"]
-seqb = ["G", "A", "T", "T", "G", "A"]
-chart, paths = find_alignments(seqa, seqb, 2, -1, -2)
+
+# set it so seqa is the shorter string
+
+total()
