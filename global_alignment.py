@@ -67,8 +67,6 @@ def find_alignment(chart, sequences):
     last_row, last_column = len(chart)-1, len(chart[0])-1
     top_aligned = []
     bot_aligned = []
-    for i in chart:
-        print(i)
     first = True
     error = False
     while True:
@@ -80,60 +78,66 @@ def find_alignment(chart, sequences):
                 top_aligned.append(top_seq[-1])
                 bot_aligned.append(bot_seq[-1])
             first = False
-        if not error:
-            try:
-                check = chart[last_row][last_column]
-                if chart[last_row][last_column][1] == [1,1]:
-                    break
-                if top_seq[last_column-2] == bot_seq[last_row-2]:
-                    last_row, last_column = last_row-1, last_column-1
-                    to_add = top_seq[last_column-1]
-                    top_aligned.append(to_add)
-                    bot_aligned.append(to_add)
-                    continue
-                diagonal = chart[last_row-1][last_column-1][0]
-                top = chart[last_row-1][last_column][0]
-                left = chart[last_row][last_column-1][0]
-                values = [diagonal, top, left]
-                greatest = max(values)
-                if values.count(greatest) > 1:
-                    if values[0] == greatest:
-                        top_aligned.append(top_seq[last_column-2])
-                        bot_aligned.append(bot_seq[last_row-2])
-                        last_row, last_column = last_row-1, last_column-1
-                elif values[0] == greatest:
-                    if last_row != 0 and last_column != 0:
-                        top_aligned.append(top_seq[last_column-2])
-                        bot_aligned.append(bot_seq[last_row-2])
-                    last_row, last_column = last_row-1, last_column-1
-                elif values[1] == greatest:
-                    top_aligned.append("-")
-                    bot_aligned.append(bot_seq[last_row-2])
-                    last_row, last_column = last_row-1, last_column
-                elif values[2] == greatest:
-                    bot_aligned.append("-")
-                    top_aligned.append(top_seq[last_column-2])
-                    last_row, last_column = last_row, last_column-1
-            except IndexError:
-                error = True
-        else:
-            if last_row == 0:
-                print("hi")
-                break
+        check = chart[last_row][last_column]
+        if chart[last_row][last_column][1] == [1,1]:
+            break
+        try:
+            if top_seq[last_column-2] == bot_seq[last_row-2]:
+                last_row, last_column = last_row-1, last_column-1
+                to_add = top_seq[last_column-1]
+                top_aligned.append(to_add)
+                bot_aligned.append(to_add)
+                continue
+        except IndexError:
+            pass
+        diagonal = chart[last_row-1][last_column-1][0]
+        top = chart[last_row-1][last_column][0]
+        left = chart[last_row][last_column-1][0]
+        values = [diagonal, top, left]
+        greatest = max(values)
+        if values.count(greatest) > 1:
+            if values[0] == greatest:
+                top_aligned.append(top_seq[last_column-2])
+                bot_aligned.append(bot_seq[last_row-2])
+                last_row, last_column = last_row-1, last_column-1
+        elif values[0] == greatest:
+            if last_row != 0 and last_column != 0:
+                top_aligned.append(top_seq[last_column-2])
+                bot_aligned.append(bot_seq[last_row-2])
+            last_row, last_column = last_row-1, last_column-1
+        elif values[1] == greatest:
+            top_aligned.append("-")
+            bot_aligned.append(bot_seq[last_row-2])
+            last_row, last_column = last_row-1, last_column
+        elif values[2] == greatest:
+            bot_aligned.append("-")
+            top_aligned.append(top_seq[last_column-2])
+            last_row, last_column = last_row, last_column-1
+        if last_row < 0 and last_column > 0:
+            times = check[1][1]
+            top_aligned.pop(-1)
+            bot_aligned.pop(-1)
+            bot_aligned += ["-"] * times
+            top_aligned += top_seq[:times]
+            break
+        if last_row > 0 and last_column < 0:
+            times = check[1][1]
+            top_aligned.pop(-1)
+            bot_aligned.pop(-1)
+            top_aligned += ["-"] * times
+            bot_aligned += bot_seq[:times]
+            break
+        if last_row < 0 and last_column < 0:
+            break
 
-    print(list(reversed(top_aligned)), list(reversed(bot_aligned)))
-
-# y = initialize_chart(a, b, -2)
-# for i in y:
-#     print(i)
+    print(list(reversed(top_aligned)), "\n",list(reversed(bot_aligned)))
 
 def main():
-    b = list("C")
-    a = list("A")
+    a = list("GACA")
+    b = list("ACA")
+    c = a[:]
+    d = b[:]
     match_info = (1,-1,-2)
     chart = fill_score((a,b), match_info)
-    find_alignment(chart, (a,b))
-# z = fill_score((a,b), (1,-1,-2))
-# for i in z:
-#     print(i)
+    find_alignment(chart, (c,d))
 main()
