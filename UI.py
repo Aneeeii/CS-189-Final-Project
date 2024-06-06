@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import global_alignment as GA
+import local_alignment as LA
 class Body:
 
     def __init__(self):
@@ -9,15 +10,15 @@ class Body:
         self.top_sequence, self.bot_sequence = None, None
         self.match, self.mismatch, self.gap = None, None, None
         self.label, self.score_frame = [], None
-        self.scores = None
+        self.scores, self.algorithm = None, None
         self.to_destroy = []
         self.create()
 
     def create_bar(self):
         self.menu = tk.Menu(self._root)
         file_menu = tk.Menu(self.menu, tearoff=0)
-        file_menu.add_command(label="Global Alignment", command=self.global_aligning)
-        file_menu.add_command(label="Local Alignment", command=None)
+        file_menu.add_command(label="Global Alignment", command=self.aligning)
+        file_menu.add_command(label="Local Alignment", command=self.aligning)
 
         self.menu.add_cascade(label="Alignment Options", menu=file_menu)
         
@@ -57,6 +58,14 @@ class Body:
     def return_root(self):
         return self._root
     
+    def global_check(self):
+        self.algorithm = "global"
+        self.aligning("Global Alignment")
+    
+    def local_check(self):
+        self.algorithm = "local"
+
+    
     def data_collection(self, name):
         self.delete_frame()
         self.clear_text()
@@ -93,13 +102,19 @@ class Body:
                 i.destroy()
 
     
-    def global_aligning(self):
+    def aligning(self):
         self.delete_frame()
-        check = self.data_collection("Global Alignment")
+        if self.algorithm == "global":
+            check = self.data_collection("Global Alignment")
+            if check:
+                final, self.scores = GA.run(self.top_sequence, self.bot_sequence,
+                        (self.match, self.mismatch, self.gap))
+        else:
+            check = self.data_collection("Local Alignment")
+            if check:
+                final, self.scores = LA.total("".join(self.top_sequence), "".join(self.bot_sequence))
         if not check:
             return None
-        final, self.scores = GA.run(self.top_sequence, self.bot_sequence,
-                       (self.match, self.mismatch, self.gap))
         self.chart_update()
         self.score_frame = tk.Frame(self._root, bd=2, relief=tk.GROOVE)
         self.score_frame.pack(padx=10, pady=10)
@@ -126,9 +141,6 @@ class Body:
         for i in range(top):
             self.top_sequence.insert(0, "")
         self.scores.insert(0, self.top_sequence)
-        # bot = len(self.scores) - len(self.bot_sequence)
-        # for i in range(bot):
-        #     self.bot_sequence.insert(0, "")
         bot = len(self.scores)
         for i in range(bot):
             if i == 0 or i == 1:
@@ -196,29 +208,6 @@ class Match_Info(tk.simpledialog.Dialog):
         self.mismatch_score = self.mismatch_entry.get()
         self.gap_score = self.gap_entry.get()
     
-
-        
-
-
-# def view_instructions(frame):
-#     line = instruction_info()
-
-    
-#     instructions = tk.Label(frame, text=instruction_info(), font=("Arial", 12))
-#     instructions.place(relx=0.5, y=30, anchor="center")
-#     instructions.pack()
-
-
-
-
-# Create a label to act as the title inside the box
-
-
-
-
-
-# Create a menubar
-
 def main():
     body = Body()
     root = body.return_root()
