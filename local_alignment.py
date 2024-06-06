@@ -296,10 +296,21 @@ def total(seqa: str, seqb: str):
     paths_aligned = stringify(paths, seqa, seqb)
     for i in paths_aligned:
         aseqa, aseqb = fill_in_blank(i, seqa, seqb)
+    top_row = []
+    for j in chart[0]:
+        top_row.append(0)
+    chart = [top_row] + chart
+
+    final_chart = []
+
+    for k in chart:
+        k = [0] + k
+        final_chart.append(k)
+
     print(aseqa)
     print(aseqb)
-    print(chart)
-    return ''.join(aseqa), ''.join(aseqb), chart
+    print(final_chart)
+    return (aseqa, aseqb), final_chart
 
 
 # set it so seqa is the shorter string
