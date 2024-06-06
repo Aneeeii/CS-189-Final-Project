@@ -315,8 +315,8 @@ def total(seqa: str, seqb: str):
 
 # set it so seqa is the shorter string
 
-seqa = "GATTGA"
-seqb = "AATG"
+seqa = "ACAGGTA"
+seqb = "AAGGA"
 total(seqa, seqb)
 
 # working sequences
