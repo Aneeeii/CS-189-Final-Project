@@ -316,9 +316,9 @@ def total(seqa: str, seqb: str, match, mismatch, gap):
 
 # set it so seqa is the shorter string
 
-seqa = "ACAGGTA"
-seqb = "AAGGA"
-total(seqa, seqb)
+# seqa = "ACAGGTA"
+# seqb = "AAGGA"
+# total(seqa, seqb,2,-1,-2)
 
 # working sequences
 # GATTGA, AATG

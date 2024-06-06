@@ -112,7 +112,8 @@ class Body:
         else:
             check = self.data_collection("Local Alignment")
             if check:
-                final, self.scores = LA.total("".join(self.top_sequence), "".join(self.bot_sequence))
+                final, self.scores = LA.total("".join(self.top_sequence), "".join(self.bot_sequence),
+                                              self.match, self.mismatch, self.gap)
         if not check:
             return None
         self.chart_update()
