@@ -12,6 +12,7 @@ class Body:
         self.label, self.score_frame = [], None
         self.scores, self.algorithm = None, None
         self.to_destroy = []
+        self.z = None #delete later
         self.create()
 
     def create_bar(self):
